@@ -1,0 +1,37 @@
+name: Build HAProxy Static aarch64
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install cross-compiler
+        run: |
+          sudo apt update
+          sudo apt install -y gcc-aarch64-linux-gnu make
+
+      - name: Build HAProxy
+        run: |
+          make clean
+          make -j2 \
+            ARCH=aarch64 \
+            CC=aarch64-linux-gnu-gcc \
+            TARGET=linux-glibc-legacy \
+            USE_OPENSSL=1 \
+            USE_PCRE2=1 \
+            USE_ZLIB=1 \
+            USE_STATIC=1 \
+            USE_STATIC_OPENSSL=1 \
+            USE_STATIC_PCRE2=1 \
+            USE_STATIC_ZLIB=1 \
+            LDFLAGS="-static -s"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: haproxy-static-aarch64
+          path: haproxy
