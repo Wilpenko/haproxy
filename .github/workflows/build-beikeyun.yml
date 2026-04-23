@@ -3,31 +3,36 @@ name: Build Static HAProxy for aarch64
 on:
   workflow_dispatch:
 
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install dependencies
+      - name: Install build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get -y install gcc-aarch64-linux-gnu make
+          sudo apt-get install -y \
+            gcc-aarch64-linux-gnu \
+            make \
+            libssl-dev \
+            libpcre2-dev \
+            zlib1g-dev
 
       - name: Build HAProxy static
         run: |
           make clean
           make -j2 \
-            ARCH=aarch64 \
             CC=aarch64-linux-gnu-gcc \
             TARGET=linux-glibc-legacy \
             USE_OPENSSL=1 \
             USE_PCRE2=1 \
             USE_ZLIB=1 \
-            USE_STATIC=1 \
-            USE_STATIC_OPENSSL=1 \
-            USE_STATIC_PCRE2=1 \
-            USE_STATIC_ZLIB=1 \
+            CFLAGS="-static" \
             LDFLAGS="-static -s"
 
       - name: Upload artifact
