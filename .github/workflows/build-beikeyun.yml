@@ -1,4 +1,4 @@
-name: Build HAProxy Static aarch64
+name: Build Static HAProxy for aarch64
 
 on:
   workflow_dispatch:
@@ -9,12 +9,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install cross-compiler
+      - name: Install dependencies
         run: |
-          sudo apt update
-          sudo apt install -y gcc-aarch64-linux-gnu make
+          sudo apt-get update
+          sudo apt-get -y install gcc-aarch64-linux-gnu make
 
-      - name: Build HAProxy
+      - name: Build HAProxy static
         run: |
           make clean
           make -j2 \
